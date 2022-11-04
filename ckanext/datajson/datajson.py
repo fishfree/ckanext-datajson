@@ -396,7 +396,7 @@ class DatasetHarvesterBase(HarvesterBase):
             Only search for datasets that are the parent of a collection.
             """
         ps = p.toolkit.get_action('package_search')
-        query = 'extras_identifier:{} AND extras_collection_metadata:true'.format(ipo)
+        query = 'extras_identifier:"{}" AND extras_collection_metadata:true'.format(ipo)
         results = ps(self.context(), {"fq": query})
         log.info('Package search results {}'.format(results))
 
