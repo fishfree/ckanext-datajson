@@ -4,11 +4,8 @@ standard_library.install_aliases()
 from ckanext.datajson.harvester_base import DatasetHarvesterBase
 from .parse_datajson import parse_datajson_entry
 
-
 import json
-import urllib.error
-import urllib.parse
-import urllib.request
+import requests
 
 
 class DataJsonHarvester(DatasetHarvesterBase):
@@ -26,16 +23,16 @@ class DataJsonHarvester(DatasetHarvesterBase):
         }
 
     def load_remote_catalog(self, harvest_job):
-        req = urllib.request.Request(harvest_job.source.url)
+        url = harvest_job.source.url
         # todo: into config and across harvester
-        req.add_header('User-agent', 'Data.gov/2.0')
+        headers = {'User-Agent': 'Data.gov/2.0'}
         try:
-            response = urllib.request.urlopen(req)
-        except urllib.error.HTTPError as e:
-            self._save_gather_error("HTTP Error getting json source: %s." % (e), harvest_job)
+            response = requests.get(url, headers=headers)
+        except requests.exceptions.ProxyError as e:
+            self._save_gather_error("ProxyError getting json source: %s." % (e), harvest_job)
             return []
-        except urllib.error.URLError as e:
-            self._save_gather_error("URL Error getting json source: %s." % (e), harvest_job)
+        except requests.exceptions.ConnectionError as e:
+            self._save_gather_error("ConnectionError getting json source: %s." % (e), harvest_job)
             return []
 
         data = response.read()
