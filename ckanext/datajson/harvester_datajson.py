@@ -4,7 +4,6 @@ standard_library.install_aliases()
 from ckanext.datajson.harvester_base import DatasetHarvesterBase
 from .parse_datajson import parse_datajson_entry
 
-import json
 import requests
 
 
