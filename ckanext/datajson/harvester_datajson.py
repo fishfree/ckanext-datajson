@@ -35,22 +35,11 @@ class DataJsonHarvester(DatasetHarvesterBase):
             self._save_gather_error("ConnectionError getting json source: %s." % (e), harvest_job)
             return []
 
-        data = response.read()
         try:
-            datasets = json.loads(data)
-        except UnicodeDecodeError:
-            # try different encode
-            try:
-                datasets = json.loads(data, 'cp1252')
-            except BaseException:
-                try:
-                    datasets = json.loads(data, 'iso-8859-1')
-                except BaseException as e:
-                    self._save_gather_error("Error loading json with 'cp1252' and 'iso-8859-1': %s" % (e), harvest_job)
-                    return []
-        except BaseException:
-            # remove BOM
-            datasets = json.loads(lstrip_bom(data))
+            datasets = response.json()
+        except requests.exceptions.JSONDecodeError as e:
+            self._save_gather_error("Error loading json': %s" % (e), harvest_job)
+            return []
 
         # The first dataset should be for the data.json file itself. Check that
         # it is, and if so rewrite the dataset's title because Socrata exports
