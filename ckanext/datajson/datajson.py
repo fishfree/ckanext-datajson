@@ -114,7 +114,7 @@ class DatasetHarvesterBase(HarvesterBase):
         # Start gathering.
         try:
             source_datasets, catalog_values = self.load_remote_catalog(harvest_job)
-        except ValueError as e:
+        except BaseException as e:
             self._save_gather_error("Error loading json content: %s." % (e), harvest_job)
             return []
 
