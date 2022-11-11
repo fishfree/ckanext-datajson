@@ -396,8 +396,11 @@ class DatasetHarvesterBase(HarvesterBase):
             Only search for datasets that are the parent of a collection.
             """
         ps = p.toolkit.get_action('package_search')
-        query = 'extras_identifier:"{}" AND extras_collection_metadata:true'.format(ipo)
-        results = ps(self.context(), {"fq": query})
+        query = 'extras_identifier:{} AND extras_collection_metadata:true'.format(ipo)
+        try:
+            results = ps(self.context(), {"fq": query})
+        except BaseException as e:
+            self._save_object_error(e, harvest_object, 'Import')
         log.info('Package search results {}'.format(results))
 
         if results['count'] > 0:  # event if we have only one we need to be sure is the parent I need
