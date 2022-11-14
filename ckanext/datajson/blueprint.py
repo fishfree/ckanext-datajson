@@ -346,7 +346,10 @@ def validator():
                 response.raise_for_status()
                 body = response.json()
             except requests.exceptions.ProxyError as e:
-                c.errors.append(("Error Connecting URL", ["Addresses other than .gov, .mil or github.com domain could not be reached: " + str(e)]))
+                c.errors.append((
+                    "Error Connecting URL",
+                    ["Addresses other than .gov, .mil or github.com domain could not be reached: " + str(e)]
+                ))
             except requests.exceptions.ConnectionError as e:
                 c.errors.append(("Error Connecting URL", ["The address could not be accessed: " + str(e)]))
             except requests.exceptions.HTTPError as e:
