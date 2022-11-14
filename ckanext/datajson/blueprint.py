@@ -333,18 +333,25 @@ def validator():
             assert request.form.get('url').strip() != ""
             c.source_url = request.form.get('url').strip()
 
-            import urllib.request
-            import urllib.parse
-            import urllib.error
-            import json
+            import requests
+            try:
+                from requests.exceptions import JSONDecodeError
+            except ImportError:
+                from simplejson.scanner import JSONDecodeError
             from collections import deque
 
             body = None
             try:
-                body = json.load(urllib.request.urlopen(c.source_url))
-            except IOError as e:
-                c.errors.append(("Error Loading File", ["The address could not be loaded: " + str(e)]))
-            except ValueError as e:
+                response = requests.get(c.source_url)
+                response.raise_for_status()
+                body = response.json()
+            except requests.exceptions.ProxyError as e:
+                c.errors.append(("Error Connecting URL", ["The address could not be reached: " + str(e)]))
+            except requests.exceptions.ConnectionError as e:
+                c.errors.append(("Error Connecting URL", ["The address could not be accessed: " + str(e)]))
+            except requests.exceptions.HTTPError as e:
+                c.errors.append(("Error Loading URL", ["The address could not be loaded: " + str(e)]))
+            except JSONDecodeError as e:
                 c.errors.append(("Invalid JSON", ["The file does not meet basic JSON syntax requirements: " + str(
                     e) + ". Try using JSONLint.com."]))
             except Exception as e:
