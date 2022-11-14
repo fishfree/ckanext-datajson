@@ -224,14 +224,16 @@ class TestDataJSONHarvester(object):
     def test_source_returning_http_error(self):
         url = 'http://127.0.0.1:%s/404' % self.mock_port
         self.run_source(url)
-        assert self.job.gather_errors[0].message == "HTTPError getting json source: 404 Client Error: Not Found for url: %s." % url
+        assert self.job.gather_errors[0].message == ("HTTPError getting json source: "
+                                                     "404 Client Error: Not Found for url: %s.") % url
         assert self.job.gather_errors[1].message == ("Error loading json content:"
                                                      " not enough values to unpack"
                                                      " (expected 2, got 0).")
 
         url = 'http://127.0.0.1:%s/500' % self.mock_port
         self.run_source(url)
-        assert self.job.gather_errors[0].message == "HTTPError getting json source: 500 Server Error: Internal Server Error for url: %s." % url
+        assert self.job.gather_errors[0].message == ("HTTPError getting json source: 500 Server Error: "
+                                                     "Internal Server Error for url: %s.") % url
         assert self.job.gather_errors[1].message == ("Error loading json content:"
                                                      " not enough values to unpack"
                                                      " (expected 2, got 0).")
