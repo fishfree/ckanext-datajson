@@ -4,8 +4,6 @@ import logging
 
 import pytest
 
-from urllib.error import URLError
-
 import ckan.plugins as p
 import ckanext.harvest.model as harvest_model
 import ckanext.harvest.queue as queue
@@ -226,9 +224,14 @@ class TestDataJSONHarvester(object):
     def test_source_returning_http_error(self):
         url = 'http://127.0.0.1:%s/404' % self.mock_port
         self.run_source(url)
+        assert self.job.gather_errors[0].message == "HTTPError getting json source: 404 Client Error: Not Found for url: %s." % url
+        assert self.job.gather_errors[1].message == ("Error loading json content:"
+                                                     " not enough values to unpack"
+                                                     " (expected 2, got 0).")
 
-        pytest.raises(URLError)
-        assert self.job.gather_errors[0].message == "HTTP Error getting json source: HTTP Error 404: Not Found."
+        url = 'http://127.0.0.1:%s/500' % self.mock_port
+        self.run_source(url)
+        assert self.job.gather_errors[0].message == "HTTPError getting json source: 500 Server Error: Internal Server Error for url: %s." % url
         assert self.job.gather_errors[1].message == ("Error loading json content:"
                                                      " not enough values to unpack"
                                                      " (expected 2, got 0).")
@@ -238,8 +241,16 @@ class TestDataJSONHarvester(object):
         url = 'https://127.0.0.1:%s' % self.mock_port
         self.run_source(url)
 
-        pytest.raises(URLError)
-        assert "URL Error getting json source: <urlopen error" in self.job.gather_errors[0].message
+        assert "ConnectionError getting json source: HTTPSConnectionPool" in self.job.gather_errors[0].message
+        assert self.job.gather_errors[1].message == ("Error loading json content:"
+                                                     " not enough values to unpack"
+                                                     " (expected 2, got 0).")
+
+    def test_json_decode_error(self):
+        url = 'http://127.0.0.1:%s/text' % self.mock_port
+
+        self.run_source(url)
+        assert "JSONDecodeError loading json." in self.job.gather_errors[0].message
         assert self.job.gather_errors[1].message == ("Error loading json content:"
                                                      " not enough values to unpack"
                                                      " (expected 2, got 0).")
@@ -624,13 +635,3 @@ class TestDataJSONHarvester(object):
         dataset = datasets[0]
         expected_title = "Sample Title NUll Spatial"
         assert dataset.title == expected_title
-
-    def test_datason_404(self):
-        url = 'http://127.0.0.1:%s/404' % self.mock_port
-        self.run_source(url=url)
-        pytest.raises(URLError)
-
-    def test_datason_500(self):
-        url = 'http://127.0.0.1:%s/500' % self.mock_port
-        self.run_source(url=url)
-        pytest.raises(URLError)

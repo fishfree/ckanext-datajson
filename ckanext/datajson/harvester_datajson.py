@@ -6,6 +6,11 @@ from .parse_datajson import parse_datajson_entry
 
 import requests
 
+try:
+    from requests.exceptions import JSONDecodeError
+except ImportError:
+    from simplejson.scanner import JSONDecodeError
+
 
 class DataJsonHarvester(DatasetHarvesterBase):
     '''
@@ -35,9 +40,15 @@ class DataJsonHarvester(DatasetHarvesterBase):
             return []
 
         try:
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            self._save_gather_error("HTTPError getting json source: %s." % (e), harvest_job)
+            return []
+
+        try:
             datasets = response.json()
-        except requests.exceptions.JSONDecodeError as e:
-            self._save_gather_error("Error loading json': %s" % (e), harvest_job)
+        except JSONDecodeError as e:
+            self._save_gather_error("JSONDecodeError loading json. %s" % (e), harvest_job)
             return []
 
         # The first dataset should be for the data.json file itself. Check that
