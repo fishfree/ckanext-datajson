@@ -114,7 +114,7 @@ class DatasetHarvesterBase(HarvesterBase):
         # Start gathering.
         try:
             source_datasets, catalog_values = self.load_remote_catalog(harvest_job)
-        except ValueError as e:
+        except BaseException as e:
             self._save_gather_error("Error loading json content: %s." % (e), harvest_job)
             return []
 
@@ -397,7 +397,10 @@ class DatasetHarvesterBase(HarvesterBase):
             """
         ps = p.toolkit.get_action('package_search')
         query = 'extras_identifier:"{}" AND extras_collection_metadata:true'.format(ipo)
-        results = ps(self.context(), {"fq": query})
+        try:
+            results = ps(self.context(), {"fq": query})
+        except BaseException as e:
+            self._save_object_error(e, harvest_object, 'Import')
         log.info('Package search results {}'.format(results))
 
         if results['count'] > 0:  # event if we have only one we need to be sure is the parent I need
