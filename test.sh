@@ -14,4 +14,4 @@ while ! ckan -c test.ini db init; do
   sleep 5
 done
 
-pytest --ckan-ini=test.ini --cov=ckanext.datajson --disable-warnings -s ckanext/datajson/tests/test_datajson_validation.py
+pytest --ckan-ini=test.ini --cov=ckanext.datajson --disable-warnings ckanext/datajson/tests/
