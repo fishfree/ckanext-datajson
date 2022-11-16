@@ -65,7 +65,7 @@ class TestDataJsonValidation(object):
     def test_data_json_bad_link(self, app):
         ''' Test that a bad link fails '''
 
-        res = app.post('/dcat-us/validator', data={'url': 'data.gov'})
+        res = app.post('/dcat-us/validator', data={'url': 'http://data.gov'})
 
         assert res.status_code == 200
         assert 'Invalid JSON' in res.body
@@ -119,14 +119,14 @@ class TestDataJsonValidation(object):
         })
 
         assert res.status_code == 200
-        assert 'Error Loading File' in res.body
-        assert 'The address could not be loaded' in res.body
+        assert 'Error Connecting URL' in res.body
+        assert 'The address could not be accessed' in res.body
 
         res = app.post('/dcat-us/validator', data={
             'url': 'https://www.google.com:443/data.json'
         })
 
         assert res.status_code == 200
-        assert 'Error Loading File' in res.body
+        assert 'Error Loading URL' in res.body
         assert 'The address could not be loaded' in res.body
-        assert 'HTTP Error 404' in res.body
+        assert '404 Client Error' in res.body

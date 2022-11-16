@@ -5,10 +5,7 @@ standard_library.install_aliases()
 from past.utils import old_div
 from ckanext.datajson.harvester_base import DatasetHarvesterBase
 
-import urllib.request
-import urllib.error
-import urllib.parse
-import json
+import requests
 import re
 import datetime
 
@@ -28,7 +25,7 @@ class CmsDataNavigatorHarvester(DatasetHarvesterBase):
         }
 
     def load_remote_catalog(self, harvest_job):
-        catalog = json.load(urllib.request.urlopen(harvest_job.source.url))
+        catalog = requests.get(harvest_job.source.url).json()
         for item in catalog:
             item["identifier"] = item["ID"]
             item["title"] = item["Name"].strip()

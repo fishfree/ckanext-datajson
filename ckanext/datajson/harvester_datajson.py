@@ -4,11 +4,12 @@ standard_library.install_aliases()
 from ckanext.datajson.harvester_base import DatasetHarvesterBase
 from .parse_datajson import parse_datajson_entry
 
+import requests
 
-import json
-import urllib.error
-import urllib.parse
-import urllib.request
+try:
+    from requests.exceptions import JSONDecodeError
+except ImportError:
+    from simplejson.scanner import JSONDecodeError
 
 
 class DataJsonHarvester(DatasetHarvesterBase):
@@ -26,34 +27,29 @@ class DataJsonHarvester(DatasetHarvesterBase):
         }
 
     def load_remote_catalog(self, harvest_job):
-        req = urllib.request.Request(harvest_job.source.url)
+        url = harvest_job.source.url
         # todo: into config and across harvester
-        req.add_header('User-agent', 'Data.gov/2.0')
+        headers = {'User-Agent': 'Data.gov/2.0'}
         try:
-            response = urllib.request.urlopen(req)
-        except urllib.error.HTTPError as e:
-            self._save_gather_error("HTTP Error getting json source: %s." % (e), harvest_job)
+            response = requests.get(url, headers=headers)
+        except requests.exceptions.ProxyError as e:
+            self._save_gather_error("ProxyError getting json source: %s." % (e), harvest_job)
             return []
-        except urllib.error.URLError as e:
-            self._save_gather_error("URL Error getting json source: %s." % (e), harvest_job)
+        except requests.exceptions.ConnectionError as e:
+            self._save_gather_error("ConnectionError getting json source: %s." % (e), harvest_job)
             return []
 
-        data = response.read()
         try:
-            datasets = json.loads(data)
-        except UnicodeDecodeError:
-            # try different encode
-            try:
-                datasets = json.loads(data, 'cp1252')
-            except BaseException:
-                try:
-                    datasets = json.loads(data, 'iso-8859-1')
-                except BaseException as e:
-                    self._save_gather_error("Error loading json with 'cp1252' and 'iso-8859-1': %s" % (e), harvest_job)
-                    return []
-        except BaseException:
-            # remove BOM
-            datasets = json.loads(lstrip_bom(data))
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            self._save_gather_error("HTTPError getting json source: %s." % (e), harvest_job)
+            return []
+
+        try:
+            datasets = response.json()
+        except JSONDecodeError as e:
+            self._save_gather_error("JSONDecodeError loading json. %s" % (e), harvest_job)
+            return []
 
         # The first dataset should be for the data.json file itself. Check that
         # it is, and if so rewrite the dataset's title because Socrata exports
