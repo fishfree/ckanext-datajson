@@ -18,11 +18,13 @@ jobs:
   test:
     strategy:
       matrix:
-        ckan-version: [2.9.5, 2.9]
+        ckan-version: [2.9.5, 2.9, 2.9.7]
         include:
         - ckan-version: 2.9.5
           services-version: 2.9
         - ckan-version: 2.9
+          services-version: 2.9
+        - ckan-version: 2.9.7
           services-version: 2.9
       fail-fast: false
 
@@ -32,7 +34,7 @@ jobs:
       image: openknowledge/ckan-dev:${{ matrix.ckan-version }}
     services:
       solr:
-        image: ckan/ckan-solr-dev:${{ matrix.services-version }}
+        image: datagov/catalog.data.gov.solr:latest
       postgres:
         image: ckan/ckan-postgres-dev:${{ matrix.services-version }}
         env:

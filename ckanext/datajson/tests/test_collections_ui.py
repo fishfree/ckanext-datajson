@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 import logging
 from . import mock_datajson_source
 from ckan import model
