@@ -4,7 +4,7 @@ on: [pull_request, push]
 jobs:
   lint-test:
     name: Lint + Test
-    uses: gsa/data.gov/.github/workflows/deploy-template.yml@ckan-reusable-workflow
+    uses: gsa/data.gov/.github/workflows/ckan-test.yml@ckan-reusable-workflow
     with:
       ext_name: datajson
     secrets: inherit
