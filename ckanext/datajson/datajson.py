@@ -22,6 +22,7 @@ from jsonschema.validators import Draft4Validator
 from jsonschema import FormatChecker
 
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy import case
 
 import logging
 log = logging.getLogger(__name__)
@@ -154,11 +155,25 @@ class DatasetHarvesterBase(HarvesterBase):
         # which corresponds to the remote catalog's 'identifier' field.
         # Make a mapping so we know how to update existing records.
         # Added: mark all existing parent datasets.
+        # Added: order_by. In a clean system order_by is not needed. It
+        # is needed when there are packages deleted by dedupe process, to
+        # ensure the active pkg wins and assigns to existing_datasets[sid].
         existing_datasets = {}
         existing_parents = {}
         for hobj in model.Session.query(HarvestObject.package_id, Package)\
                 .filter_by(source=harvest_job.source, current=True)\
-                .join(Package, HarvestObject.package_id == Package.id):
+                .join(Package, HarvestObject.package_id == Package.id)\
+                .order_by(
+                    case(
+                        [
+                            (Package.state == 'draft', 1),
+                            (Package.state == 'deleted', 2),
+                            (Package.state == 'active', 3),
+                        ],
+                        else_=0
+                    ),
+                    Package.metadata_created
+        ):
 
             # Get the equivalent "package" dictionary as if package_show
             pkg = model_dictize.package_dictize(hobj[1], self.context())
