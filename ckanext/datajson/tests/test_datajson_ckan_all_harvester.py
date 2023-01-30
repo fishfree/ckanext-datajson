@@ -637,3 +637,10 @@ class TestDataJSONHarvester(object):
         dataset = datasets[0]
         expected_title = "Sample Title NUll Spatial"
         assert dataset.title == expected_title
+
+    def test_datajson_numerical_title(self):
+        url = 'http://127.0.0.1:%s/numerical-title' % self.mock_port
+        datasets = self.run_source(url=url)
+        dataset = datasets[0]
+        expected_title = "707"
+        assert dataset.title == expected_title
