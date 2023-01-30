@@ -460,6 +460,9 @@ class DatasetHarvesterBase(HarvesterBase):
             return True
 
         dataset = json.loads(harvest_object.content)
+        # Ensure title is a string for munging/manipulation
+        # https://github.com/GSA/data.gov/issues/4172
+        dataset['title'] = str(dataset['title'])
         schema_version = '1.0'  # default to '1.0'
         is_collection = False
         parent_pkg_id = ''
