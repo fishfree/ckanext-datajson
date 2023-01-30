@@ -41,6 +41,9 @@ class MockDataJSONHandler(http.server.SimpleHTTPRequestHandler):
         elif self.path == '/null-spatial':
             self.sample_datajson_file = 'null-spatial.data.json'
             self.test_name = 'null-spatial'
+        elif self.path == '/numerical-title':
+            self.sample_datajson_file = 'numerical-title.data.json'
+            self.test_name = 'numerical-title'
         elif self.path == '/text':
             self.test_name = 'test'
             self.respond('abc123', status=200)
