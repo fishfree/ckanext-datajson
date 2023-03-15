@@ -242,6 +242,10 @@ class DatasetHarvesterBase(HarvesterBase):
             if not matched_filters:
                 continue
 
+            if 'identifier' not in dataset:
+                self._save_gather_error("The property identifier is required", harvest_job)
+                continue
+
             # Some source contains duplicate identifiers. skip all except the first one
             if dataset['identifier'] in unique_datasets:
                 self._save_gather_error("Duplicate entry ignored for identifier: '%s'." % (dataset['identifier']), harvest_job)
@@ -460,6 +464,11 @@ class DatasetHarvesterBase(HarvesterBase):
             return True
 
         dataset = json.loads(harvest_object.content)
+
+        if 'title' not in dataset:
+            self._save_object_error(f"Identifier {dataset['identifier']}: missing title field", harvest_object, 'Import')
+            return None
+
         # Ensure title is a string for munging/manipulation
         # https://github.com/GSA/data.gov/issues/4172
         dataset['title'] = str(dataset['title'])
