@@ -4,11 +4,15 @@ This contains the various examples for DCAT-US implementations.
 ### Geospatial Full Metadata Link Example
 You can see this example at [geospatial.data.json](./geospatial.data.json).
 
-The examples adds a new `Dataset Distribution Field` for the link. 
-The requirements are to utilize the `conformsTo` field to specify what metadata flavor is used, 
+The examples adds a new `Dataset Distribution Field` for the link.
+The requirements are to utilize the `conformsTo` field to specify what metadata flavor is used,
 so that downstream users (ie Geoplatform) can examine and decide if this metadata is ingestible/usable.
 See geoplatform necessary specifications [here](https://kb.geoplatform.gov/gc-fac-isocsdgmdcat.html#geospatial-metadata-link-example).
 This is easily discoverable and usable by both machines and users.
+
+**Please note, if you are using [inventory](https://inventory.data.gov),**
+**you will have to re-enter this information if you upload**
+**a new file (due to CKAN limitations).**
 
 Best practice also includes the following:
 
