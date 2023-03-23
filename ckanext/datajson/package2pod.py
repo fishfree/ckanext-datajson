@@ -476,6 +476,7 @@ class Wrappers(object):
         format_clean = value.lower()
         if format_clean in formats:
             mime_type = formats[format_clean][0]
+            mime_type = mime_type if mime_type else 'application/octet-stream'
         else:
             mime_type = value
         msg = value + ' ... BECOMES ... ' + mime_type
