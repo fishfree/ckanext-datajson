@@ -196,7 +196,7 @@ def get_additional_formats():
             if format_line[0] == '_comment':
                 continue
             line = [format_line[2], format_line[0], format_line[1]]
-            resource_formats[format_line[].lower()] = line
+            resource_formats[format_line[0].lower()] = line
 
     return resource_formats
 
