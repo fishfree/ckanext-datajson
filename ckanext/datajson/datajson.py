@@ -385,7 +385,11 @@ class DatasetHarvesterBase(HarvesterBase):
 
     # make ValidationError readable.
     def _validate_readable_msg(self, e):
-        msg = e.message.replace("u'", "'")
+        msg = e.message
+        # limit the message size to be 150 characters
+        if len(msg) > 150:
+            msg = msg[:100] + " ...[truncated]... " + msg[-50:]
+
         elem = ""
         try:
             if e.schema_path[0] == 'properties':
